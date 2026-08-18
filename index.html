@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · News letter</title>
+<title>BraFit · Newsletter!!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -369,6 +369,7 @@
   .reveal.in{ opacity:1; transform:none; }
   @media (prefers-reduced-motion:reduce){ .reveal{ opacity:1; transform:none; transition:none; } }
 </style>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -938,6 +939,28 @@
   };
 
   // ---------- Captura de correos de suscripción (público, sin login) ----------
+  // ---------- EmailJS: envío del correo de bienvenida ----------
+  // Reemplaza estos 3 valores por los tuyos exactos, tal como aparecen en tu cuenta de EmailJS.
+  const EMAILJS_PUBLIC_KEY  = "noijpzFODF2qp2x2J";
+  const EMAILJS_SERVICE_ID  = "coachbrahyan.cor09@gmail";
+  const EMAILJS_TEMPLATE_ID = "template_p3n3ssg";
+
+  if (window.emailjs && EMAILJS_PUBLIC_KEY !== "PON_AQUI_TU_PUBLIC_KEY") {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+
+  async function sendWelcomeEmail(email){
+    if (!window.emailjs || EMAILJS_PUBLIC_KEY === "PON_AQUI_TU_PUBLIC_KEY") {
+      console.warn("EmailJS no está configurado todavía. El correo se guardó, pero no se envió ningún email.");
+      return;
+    }
+    try{
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { email: email });
+    }catch(err){
+      console.error("Error enviando el correo de bienvenida:", err);
+    }
+  }
+
   async function submitSubscriber(email, plan, msgEl, formEl){
     if(!email || !email.includes('@')){
       msgEl.textContent = 'Por favor escribe un correo válido.';
@@ -949,6 +972,7 @@
         plan: plan,
         createdAt: serverTimestamp()
       });
+      await sendWelcomeEmail(email);
       formEl.style.display = 'none';
       msgEl.style.color = 'var(--gold)';
       msgEl.textContent = '¡Listo! Revisa tu correo en los próximos minutos.';
