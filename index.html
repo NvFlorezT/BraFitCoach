@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · Newsletter</title>
+<title>BraFit · News letter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -230,6 +230,19 @@
   .pdf-card:nth-child(odd){ transform:rotate(-0.8deg); }
   .pdf-card:nth-child(even){ transform:rotate(0.8deg); }
   .pdf-card:hover{ border-color:var(--gold); background:rgba(243,240,233,.06); transform:rotate(0) translateY(-3px); }
+  .pdf-card.active-week{
+    border-color:var(--gold); border-width:2px;
+    background:rgba(183,143,73,.12);
+    box-shadow:0 0 0 1px var(--gold);
+  }
+  .pdf-card.active-week .tag{ color:var(--gold-soft); }
+  .pdf-download-slot{ margin-top:14px; }
+  .pdf-download-slot a.btn{
+    display:inline-flex; padding:10px 18px; font-size:13px;
+    background:var(--gold); color:var(--navy); font-weight:700;
+    border-radius:8px; text-decoration:none;
+  }
+  .pdf-download-slot a.btn:hover{ background:var(--gold-soft); }
   .pdf-card .tag{ font-family:'JetBrains Mono'; font-size:11px; color:var(--gold-soft); letter-spacing:.08em;}
   .pdf-card h4{ font-family:'Archivo Narrow'; font-weight:700; font-size:18px; margin-top:10px; color:var(--bone); }
   .pdf-note{
@@ -520,12 +533,12 @@
       <p>Al suscribirte, cada envío trae un recurso descargable que rota entre estos seis. Siempre práctico, nunca genérico.</p>
     </div>
     <div class="pdf-grid reveal">
-      <div class="pdf-card"><span class="tag">01</span><h4>Plantilla de entreno · 30 min</h4></div>
-      <div class="pdf-card"><span class="tag">02</span><h4>Menú semanal</h4></div>
-      <div class="pdf-card"><span class="tag">03</span><h4>Creación de hábitos</h4></div>
-      <div class="pdf-card"><span class="tag">04</span><h4>Romper barreras mentales</h4></div>
-      <div class="pdf-card"><span class="tag">05</span><h4>Rutina de fortalecimiento</h4></div>
-      <div class="pdf-card"><span class="tag">06</span><h4>Energía y calidad del sueño</h4></div>
+      <div class="pdf-card" id="pdfcard-entreno"><span class="tag">01</span><h4>Plantilla de entreno · 30 min</h4><div class="pdf-download-slot"></div></div>
+      <div class="pdf-card" id="pdfcard-menu"><span class="tag">02</span><h4>Menú semanal</h4><div class="pdf-download-slot"></div></div>
+      <div class="pdf-card" id="pdfcard-habitos"><span class="tag">03</span><h4>Creación de hábitos</h4><div class="pdf-download-slot"></div></div>
+      <div class="pdf-card" id="pdfcard-barreras"><span class="tag">04</span><h4>Romper barreras mentales</h4><div class="pdf-download-slot"></div></div>
+      <div class="pdf-card" id="pdfcard-fortalecimiento"><span class="tag">05</span><h4>Rutina de fortalecimiento</h4><div class="pdf-download-slot"></div></div>
+      <div class="pdf-card" id="pdfcard-energia"><span class="tag">06</span><h4>Energía y calidad del sueño</h4><div class="pdf-download-slot"></div></div>
     </div>
     <p class="pdf-note">Para desbloquear la descarga: correo → 30 días de acceso gratis → suscripción para seguir recibiéndolo cada semana.</p>
 
@@ -696,6 +709,20 @@
       <textarea id="quote2" rows="2" style="padding:10px; border:1px solid rgba(7,22,52,.2); border-radius:8px;"></textarea>
       <label style="font-family:'JetBrains Mono'; font-size:11px; color:var(--gold);">PREGUNTA REFLEXIVA</label>
       <textarea id="question1" rows="2" style="padding:10px; border:1px solid rgba(7,22,52,.2); border-radius:8px;"></textarea>
+
+      <label style="font-family:'JetBrains Mono'; font-size:11px; color:var(--gold); margin-top:8px;">PDF HABILITADO ESTA SEMANA</label>
+      <select id="activePdfTopic" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px; font-family:'Archivo';">
+        <option value="">— Ninguno esta semana —</option>
+        <option value="entreno">01 · Plantilla de entreno · 30 min</option>
+        <option value="menu">02 · Menú semanal</option>
+        <option value="habitos">03 · Creación de hábitos</option>
+        <option value="barreras">04 · Romper barreras mentales</option>
+        <option value="fortalecimiento">05 · Rutina de fortalecimiento</option>
+        <option value="energia">06 · Energía y calidad del sueño</option>
+      </select>
+      <label style="font-family:'JetBrains Mono'; font-size:11px; color:var(--gold);">LINK DE GOOGLE DRIVE DEL PDF</label>
+      <input type="url" id="activePdfLink" placeholder="https://drive.google.com/file/d/..." style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;">
+
       <div style="display:flex; gap:12px; margin-top:10px;">
         <button class="btn" type="button" onclick="saveWeeklyContent()">Guardar y publicar</button>
         <button class="btn secondary" type="button" style="background:transparent;border:1px solid var(--navy);color:var(--navy);" onclick="clearWeeklyContent()">Borrar esta semana</button>
@@ -755,15 +782,33 @@
   const weeklyDocRef = doc(db, "weekly_content", "current");
 
   // ---------- Cargar y mostrar el contenido semanal (público, sin login) ----------
+  const pdfTopicIds = ['entreno','menu','habitos','barreras','fortalecimiento','energia'];
+
+  function updateActivePdfCard(activeTopic, link){
+    pdfTopicIds.forEach(function(topic){
+      const card = document.getElementById('pdfcard-' + topic);
+      if(!card) return;
+      const slot = card.querySelector('.pdf-download-slot');
+      card.classList.remove('active-week');
+      slot.innerHTML = '';
+      if(topic === activeTopic && link){
+        card.classList.add('active-week');
+        slot.innerHTML = '<a class="btn" href="' + link + '" target="_blank" rel="noopener">Descargar PDF</a>';
+      }
+    });
+  }
+
   async function loadWeeklyContent(){
     try{
       const snap = await getDoc(weeklyDocRef);
       const section = document.getElementById('thisWeekSection');
       if(!snap.exists()){
         section.style.display = 'none';
+        updateActivePdfCard(null, null);
         return;
       }
       const data = snap.data();
+      updateActivePdfCard(data.activePdfTopic, data.activePdfLink);
       const hasContent = data.idea1 || data.idea2 || data.idea3 || data.quote1 || data.quote2 || data.question1;
       if(!hasContent){
         section.style.display = 'none';
@@ -845,6 +890,8 @@
     document.getElementById('quote1').value = data.quote1 || '';
     document.getElementById('quote2').value = data.quote2 || '';
     document.getElementById('question1').value = data.question1 || '';
+    document.getElementById('activePdfTopic').value = data.activePdfTopic || '';
+    document.getElementById('activePdfLink').value = data.activePdfLink || '';
     document.getElementById('adminEditModal').classList.add('open');
   }
 
@@ -860,6 +907,8 @@
         quote1: document.getElementById('quote1').value.trim(),
         quote2: document.getElementById('quote2').value.trim(),
         question1: document.getElementById('question1').value.trim(),
+        activePdfTopic: document.getElementById('activePdfTopic').value,
+        activePdfLink: document.getElementById('activePdfLink').value.trim(),
         updatedAt: serverTimestamp()
       });
       msg.style.color = 'green';
@@ -875,9 +924,10 @@
     const msg = document.getElementById('adminEditMsg');
     try{
       await deleteDoc(weeklyDocRef);
-      ['idea1','idea2','idea3','quote1','quote2','question1'].forEach(function(id){
+      ['idea1','idea2','idea3','quote1','quote2','question1','activePdfLink'].forEach(function(id){
         document.getElementById(id).value = '';
       });
+      document.getElementById('activePdfTopic').value = '';
       msg.style.color = 'green';
       msg.textContent = 'Borrado. La sección desaparece de la página hasta que subas contenido nuevo.';
       loadWeeklyContent();
