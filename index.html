@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · Newsletter</title>
+<title>BraFit </title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -627,14 +627,17 @@
       <div class="plan featured">
         <span class="ribbon">MÁS ELEGIDO</span>
         <span class="plan-eyebrow">Nivel 2</span>
-        <h3>Newsletter</h3>
-        <div class="price">Desde $9/mes</div>
+        <h3>Fase 0 · Diagnóstico y Arranque</h3>
+        <div class="price" style="font-size:26px;">USD 197 <span style="font-size:14px; font-weight:400; opacity:.7;">· COP 299.000</span></div>
         <ul>
-          <li>Todo lo del nivel gratis</li>
-          <li>Acceso continuo sin interrupción</li>
-          <li>Comunidad de suscriptores</li>
+          <li>Videollamada de evaluación inicial (45-60 min)</li>
+          <li>Plan de entrenamiento de 2 semanas en Harbiz</li>
+          <li>Revisión de técnica por video</li>
+          <li>Guía del Programa completa en PDF</li>
+          <li>Camiseta BTP95 de regalo</li>
+          <li style="color:var(--gold-soft);">Crédito completo aplicado a BTP95 si te inscribes en 15 días</li>
         </ul>
-        <button class="btn" type="button" onclick="openSubModal('newsletter')">Suscribirme</button>
+        <button class="btn" type="button" onclick="openSubModal('fase0')">Empezar mi Fase 0</button>
       </div>
       <div class="plan secondary">
         <span class="plan-eyebrow">Nivel 3</span>
@@ -671,13 +674,13 @@
 <div class="modal-overlay" id="subModal">
   <div class="modal-box" style="max-width:440px;">
     <button class="modal-close" onclick="document.getElementById('subModal').classList.remove('open')">CERRAR ✕</button>
-    <h3>Empieza tu prueba gratis</h3>
+    <h3 id="subModalTitle">Empieza tu prueba gratis</h3>
     <p id="subModalDesc">30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.</p>
     <div style="display:flex; flex-direction:column; gap:10px; margin-top:18px;">
       <input type="text" id="subName" placeholder="Nombre completo" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
       <input type="email" id="subEmail" placeholder="Correo electrónico" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
       <input type="tel" id="subWhatsapp" placeholder="WhatsApp (con indicativo, ej: +57 300 000 0000)" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
-      <button class="btn" type="button" onclick="submitSubModal()">Empezar gratis</button>
+      <button class="btn" type="button" id="subModalSubmitBtn" onclick="submitSubModal()">Empezar gratis</button>
       <p id="subModalMsg" style="font-family:'JetBrains Mono'; font-size:12px;"></p>
     </div>
   </div>
@@ -980,21 +983,42 @@
     }
   }
 
+  // Toda la información específica de cada plan, en un solo lugar
+  const PLAN_INFO = {
+    'gratis-30-dias': {
+      label: 'Prueba gratis (30 días)',
+      title: 'Empieza tu prueba gratis',
+      desc: '30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.',
+      button: 'Empezar gratis',
+      successMsg: '¡Listo! Revisa tu correo en los próximos minutos.'
+    },
+    'fase0': {
+      label: 'Fase 0 · Diagnóstico y Arranque',
+      title: 'Fase 0 · Diagnóstico y Arranque',
+      desc: 'USD 197 · COP 299.000, pago único. Incluye evaluación inicial, 2 semanas de entrenamiento y crédito completo hacia BTP95 si te inscribes en 15 días. Completa tus datos para confirmar.',
+      button: 'Confirmar mi cupo',
+      successMsg: 'Listo — a tu correo llegó la confirmación y el link de pago seguro. Para más información escríbenos al WhatsApp +57 313 624 8283.'
+    },
+    'btp95': {
+      label: 'Back to Peak 95',
+      title: 'Back to Peak 95',
+      desc: 'Completa tus datos y te contactamos para contarte todos los detalles.',
+      button: 'Quiero más información',
+      successMsg: 'Listo — a tu correo llegó la confirmación. Te escribimos pronto al WhatsApp +57 313 624 8283.'
+    }
+  };
+
   window.openSubModal = function(plan, customMessage){
+    const info = PLAN_INFO[plan] || PLAN_INFO['gratis-30-dias'];
     document.getElementById('subModal').dataset.plan = plan;
     document.getElementById('subName').value = '';
     document.getElementById('subEmail').value = '';
     document.getElementById('subWhatsapp').value = '';
     document.getElementById('subModalMsg').textContent = '';
-    document.getElementById('subModalDesc').textContent = customMessage || '30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.';
+    document.getElementById('subModalTitle').textContent = info.title;
+    document.getElementById('subModalDesc').textContent = customMessage || info.desc;
+    document.getElementById('subModalSubmitBtn').textContent = info.button;
     document.getElementById('subModal').classList.add('open');
-  };
-
-  // Nombres legibles de cada plan, para mostrarle al usuario si ya tiene uno activo
-  const PLAN_LABELS = {
-    'gratis-30-dias': 'Prueba gratis (30 días)',
-    'newsletter': 'Newsletter mensual',
-    'btp95': 'Back to Peak 95'
   };
 
   window.submitSubModal = async function(){
@@ -1018,7 +1042,7 @@
 
       if (existing.exists()) {
         const currentPlan = existing.data().plan;
-        const label = PLAN_LABELS[currentPlan] || currentPlan;
+        const label = (PLAN_INFO[currentPlan] && PLAN_INFO[currentPlan].label) || currentPlan;
         // Solo actualizamos nombre y whatsapp por si cambiaron -- nunca el plan ni la fecha de inicio
         await setDoc(subRef, { name: name, whatsapp: whatsapp }, { merge: true });
         if (pendingPdfLink) {
@@ -1050,7 +1074,7 @@
         msg.textContent = '¡Listo! Revisa tu correo, ahí va el PDF de esta semana.';
         pendingPdfLink = null;
       } else {
-        msg.textContent = '¡Listo! Revisa tu correo en los próximos minutos.';
+        msg.textContent = (PLAN_INFO[plan] && PLAN_INFO[plan].successMsg) || '¡Listo! Revisa tu correo en los próximos minutos.';
       }
       setTimeout(function(){ document.getElementById('subModal').classList.remove('open'); }, 2200);
     }catch(err){
