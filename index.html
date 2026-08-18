@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · Newsletter!</title>
+<title>BraFit · Newsletter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -634,7 +634,7 @@
           <li>Acceso continuo sin interrupción</li>
           <li>Comunidad de suscriptores</li>
         </ul>
-        <button class="btn" type="button">Suscribirme</button>
+        <button class="btn" type="button" onclick="openSubModal('newsletter')">Suscribirme</button>
       </div>
       <div class="plan secondary">
         <span class="plan-eyebrow">Nivel 3</span>
@@ -645,7 +645,7 @@
           <li>El método entero, conmigo</li>
           <li>Para quien ya sabe que quiere ir en serio</li>
         </ul>
-        <button class="btn" type="button">Conocer el método</button>
+        <a class="btn" style="display:inline-flex; text-decoration:none;" href="https://wa.me/573136248283?text=Hola%20Brahyan%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20el%20m%C3%A9todo%20Back%20to%20Peak%2095" target="_blank" rel="noopener">Conocer el método</a>
       </div>
     </div>
   </div>
@@ -672,7 +672,7 @@
   <div class="modal-box" style="max-width:440px;">
     <button class="modal-close" onclick="document.getElementById('subModal').classList.remove('open')">CERRAR ✕</button>
     <h3>Empieza tu prueba gratis</h3>
-    <p>30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.</p>
+    <p id="subModalDesc">30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.</p>
     <div style="display:flex; flex-direction:column; gap:10px; margin-top:18px;">
       <input type="text" id="subName" placeholder="Nombre completo" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
       <input type="email" id="subEmail" placeholder="Correo electrónico" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
@@ -791,6 +791,8 @@
   // ---------- Cargar y mostrar el contenido semanal (público, sin login) ----------
   const pdfTopicIds = ['entreno','menu','habitos','barreras','fortalecimiento','energia'];
 
+  let pendingPdfLink = null;
+
   function updateActivePdfCard(activeTopic, link){
     pdfTopicIds.forEach(function(topic){
       const card = document.getElementById('pdfcard-' + topic);
@@ -800,7 +802,15 @@
       slot.innerHTML = '';
       if(topic === activeTopic && link){
         card.classList.add('active-week');
-        slot.innerHTML = '<a class="btn" href="' + link + '" target="_blank" rel="noopener">Descargar PDF</a>';
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.type = 'button';
+        btn.textContent = 'Descargar PDF';
+        btn.onclick = function(){
+          pendingPdfLink = link;
+          openSubModal('gratis-30-dias', 'Para obtener el PDF de esta semana, suscríbete gratis — te lo enviamos a tu correo.');
+        };
+        slot.appendChild(btn);
       }
     });
   }
@@ -955,24 +965,28 @@
     emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   }
 
-  async function sendWelcomeEmail(email){
+  async function sendWelcomeEmail(email, pdfLink){
     if (!window.emailjs || EMAILJS_PUBLIC_KEY === "PON_AQUI_TU_PUBLIC_KEY") {
       console.warn("EmailJS no está configurado todavía. El correo se guardó, pero no se envió ningún email.");
       return;
     }
     try{
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { email: email });
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        email: email,
+        pdf_link: pdfLink || 'https://nvflorezt.github.io/BraFitCoach/'
+      });
     }catch(err){
       console.error("Error enviando el correo de bienvenida:", err);
     }
   }
 
-  window.openSubModal = function(plan){
+  window.openSubModal = function(plan, customMessage){
     document.getElementById('subModal').dataset.plan = plan;
     document.getElementById('subName').value = '';
     document.getElementById('subEmail').value = '';
     document.getElementById('subWhatsapp').value = '';
     document.getElementById('subModalMsg').textContent = '';
+    document.getElementById('subModalDesc').textContent = customMessage || '30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.';
     document.getElementById('subModal').classList.add('open');
   };
 
@@ -1005,12 +1019,20 @@
       if (existing.exists()) {
         const currentPlan = existing.data().plan;
         const label = PLAN_LABELS[currentPlan] || currentPlan;
-        msg.style.color = '#b00';
-        const waText = encodeURIComponent('Hola, quiero cambiar mi plan de BraFit (correo: ' + email + ')');
-        msg.innerHTML = 'Este correo ya está registrado, con el plan: <strong>' + label + '</strong>. Si quieres cambiar de plan, ' +
-          '<a href="https://wa.me/573136248283?text=' + waText + '" target="_blank" rel="noopener" style="color:var(--navy); text-decoration:underline; font-weight:700;">escríbenos por WhatsApp</a>.';
         // Solo actualizamos nombre y whatsapp por si cambiaron -- nunca el plan ni la fecha de inicio
         await setDoc(subRef, { name: name, whatsapp: whatsapp }, { merge: true });
+        if (pendingPdfLink) {
+          await sendWelcomeEmail(email, pendingPdfLink);
+          msg.style.color = 'var(--gold)';
+          msg.textContent = '¡Listo! Revisa tu correo, ahí va el PDF de esta semana.';
+          pendingPdfLink = null;
+          setTimeout(function(){ document.getElementById('subModal').classList.remove('open'); }, 2200);
+        } else {
+          msg.style.color = '#b00';
+          const waText = encodeURIComponent('Holaaa Brahyan, actualmente tengo el plan ' + label + ' y me gustaría cambiarlo, mi correo es ' + email);
+          msg.innerHTML = 'Este correo ya está registrado, con el plan: <strong>' + label + '</strong>. Si quieres cambiar de plan, ' +
+            '<a href="https://wa.me/573136248283?text=' + waText + '" target="_blank" rel="noopener" style="color:var(--navy); text-decoration:underline; font-weight:700;">escríbenos por WhatsApp</a>.';
+        }
         return;
       }
 
@@ -1022,9 +1044,14 @@
         plan: plan,
         createdAt: serverTimestamp()
       });
-      await sendWelcomeEmail(email);
+      await sendWelcomeEmail(email, pendingPdfLink);
       msg.style.color = 'var(--gold)';
-      msg.textContent = '¡Listo! Revisa tu correo en los próximos minutos.';
+      if (pendingPdfLink) {
+        msg.textContent = '¡Listo! Revisa tu correo, ahí va el PDF de esta semana.';
+        pendingPdfLink = null;
+      } else {
+        msg.textContent = '¡Listo! Revisa tu correo en los próximos minutos.';
+      }
       setTimeout(function(){ document.getElementById('subModal').classList.remove('open'); }, 2200);
     }catch(err){
       msg.style.color = '#b00';
