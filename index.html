@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · Newsletter</title>
+<title>BraFit · Newsletter!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -976,9 +976,16 @@
     document.getElementById('subModal').classList.add('open');
   };
 
+  // Nombres legibles de cada plan, para mostrarle al usuario si ya tiene uno activo
+  const PLAN_LABELS = {
+    'gratis-30-dias': 'Prueba gratis (30 días)',
+    'newsletter': 'Newsletter mensual',
+    'btp95': 'Back to Peak 95'
+  };
+
   window.submitSubModal = async function(){
     const name = document.getElementById('subName').value.trim();
-    const email = document.getElementById('subEmail').value.trim();
+    const email = document.getElementById('subEmail').value.trim().toLowerCase();
     const whatsapp = document.getElementById('subWhatsapp').value.trim();
     const plan = document.getElementById('subModal').dataset.plan || 'gratis-30-dias';
     const msg = document.getElementById('subModalMsg');
@@ -988,9 +995,27 @@
     if(!whatsapp || whatsapp.length < 7){ msg.style.color = '#b00'; msg.textContent = 'Escribe tu WhatsApp con indicativo de país.'; return; }
 
     msg.style.color = 'var(--ink-muted)';
-    msg.textContent = 'Enviando...';
+    msg.textContent = 'Revisando...';
+
     try{
-      await addDoc(collection(db, 'subscribers'), {
+      // El correo (en minúsculas) es el ID del documento -> así cada persona existe una sola vez
+      const subRef = doc(db, 'subscribers', email);
+      const existing = await getDoc(subRef);
+
+      if (existing.exists()) {
+        const currentPlan = existing.data().plan;
+        const label = PLAN_LABELS[currentPlan] || currentPlan;
+        msg.style.color = '#b00';
+        const waText = encodeURIComponent('Hola, quiero cambiar mi plan de BraFit (correo: ' + email + ')');
+        msg.innerHTML = 'Este correo ya está registrado, con el plan: <strong>' + label + '</strong>. Si quieres cambiar de plan, ' +
+          '<a href="https://wa.me/573136248283?text=' + waText + '" target="_blank" rel="noopener" style="color:var(--navy); text-decoration:underline; font-weight:700;">escríbenos por WhatsApp</a>.';
+        // Solo actualizamos nombre y whatsapp por si cambiaron -- nunca el plan ni la fecha de inicio
+        await setDoc(subRef, { name: name, whatsapp: whatsapp }, { merge: true });
+        return;
+      }
+
+      msg.textContent = 'Enviando...';
+      await setDoc(subRef, {
         name: name,
         email: email,
         whatsapp: whatsapp,
