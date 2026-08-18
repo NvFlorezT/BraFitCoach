@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · Newsletter!!</title>
+<title>BraFit · Newsletter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -390,11 +390,6 @@
       <span class="eyebrow">Newsletter semanal</span>
       <h1 class="display">TRES IDEAS.<br>DOS CITAS.<br><span>UNA PREGUNTA.</span></h1>
       <p class="lead">Cada semana, en tu correo. Nada de dietas de entrada ni promesas de resultado — solo lo que de verdad sostiene un cambio, escrito por un entrenador que lleva años viendo qué funciona y qué no.</p>
-      <form class="form-row" id="heroSubForm">
-        <input type="email" id="heroSubEmail" placeholder="tu@correo.com" aria-label="Correo electrónico" required>
-        <button class="btn" type="submit">Quiero mis 30 días gratis</button>
-      </form>
-      <p class="fine-print" id="heroSubMsg">30 días sin costo · sin tarjeta · cancela cuando quieras</p>
     </div>
     <div class="dial-box">
       <div class="dial">
@@ -627,7 +622,7 @@
           <li>PDF descargable de la semana</li>
           <li>Sin tarjeta, sin compromiso</li>
         </ul>
-        <button class="btn" style="background:transparent;border:1px solid var(--navy);color:var(--navy);" type="button">Empezar gratis</button>
+        <button class="btn" style="background:transparent;border:1px solid var(--navy);color:var(--navy);" type="button" onclick="openSubModal('gratis-30-dias')">Empezar gratis</button>
       </div>
       <div class="plan featured">
         <span class="ribbon">MÁS ELEGIDO</span>
@@ -661,11 +656,6 @@
     <span class="eyebrow on-bone">Antes de irte</span>
     <h2>Cuando cambias tus hábitos,<br>cambia tu vida.</h2>
     <p>Esa es la filosofía completa de BraFit, en una frase. Todo lo demás es el cómo.</p>
-    <form class="form-row" id="finalSubForm">
-      <input type="email" id="finalSubEmail" placeholder="tu@correo.com" aria-label="Correo electrónico" required>
-      <button class="btn" type="submit">Suscribirme gratis</button>
-    </form>
-    <p class="fine-print" id="finalSubMsg">30 días sin costo · sin tarjeta · cancela cuando quieras</p>
   </div>
 </section>
 
@@ -677,6 +667,22 @@
 </footer>
 
 <!-- Modal: login admin -->
+<!-- Modal: suscripción (nombre, correo, whatsapp) -->
+<div class="modal-overlay" id="subModal">
+  <div class="modal-box" style="max-width:440px;">
+    <button class="modal-close" onclick="document.getElementById('subModal').classList.remove('open')">CERRAR ✕</button>
+    <h3>Empieza tu prueba gratis</h3>
+    <p>30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.</p>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:18px;">
+      <input type="text" id="subName" placeholder="Nombre completo" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
+      <input type="email" id="subEmail" placeholder="Correo electrónico" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
+      <input type="tel" id="subWhatsapp" placeholder="WhatsApp (con indicativo, ej: +57 300 000 0000)" style="padding:12px; border:1px solid rgba(7,22,52,.2); border-radius:8px;" required>
+      <button class="btn" type="button" onclick="submitSubModal()">Empezar gratis</button>
+      <p id="subModalMsg" style="font-family:'JetBrains Mono'; font-size:12px;"></p>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="adminLoginModal">
   <div class="modal-box" style="max-width:420px;">
     <button class="modal-close" onclick="document.getElementById('adminLoginModal').classList.remove('open')">CERRAR ✕</button>
@@ -961,38 +967,46 @@
     }
   }
 
-  async function submitSubscriber(email, plan, msgEl, formEl){
-    if(!email || !email.includes('@')){
-      msgEl.textContent = 'Por favor escribe un correo válido.';
-      return;
-    }
+  window.openSubModal = function(plan){
+    document.getElementById('subModal').dataset.plan = plan;
+    document.getElementById('subName').value = '';
+    document.getElementById('subEmail').value = '';
+    document.getElementById('subWhatsapp').value = '';
+    document.getElementById('subModalMsg').textContent = '';
+    document.getElementById('subModal').classList.add('open');
+  };
+
+  window.submitSubModal = async function(){
+    const name = document.getElementById('subName').value.trim();
+    const email = document.getElementById('subEmail').value.trim();
+    const whatsapp = document.getElementById('subWhatsapp').value.trim();
+    const plan = document.getElementById('subModal').dataset.plan || 'gratis-30-dias';
+    const msg = document.getElementById('subModalMsg');
+
+    if(!name){ msg.style.color = '#b00'; msg.textContent = 'Escribe tu nombre completo.'; return; }
+    if(!email || !email.includes('@')){ msg.style.color = '#b00'; msg.textContent = 'Escribe un correo válido.'; return; }
+    if(!whatsapp || whatsapp.length < 7){ msg.style.color = '#b00'; msg.textContent = 'Escribe tu WhatsApp con indicativo de país.'; return; }
+
+    msg.style.color = 'var(--ink-muted)';
+    msg.textContent = 'Enviando...';
     try{
       await addDoc(collection(db, 'subscribers'), {
+        name: name,
         email: email,
+        whatsapp: whatsapp,
         plan: plan,
         createdAt: serverTimestamp()
       });
       await sendWelcomeEmail(email);
-      formEl.style.display = 'none';
-      msgEl.style.color = 'var(--gold)';
-      msgEl.textContent = '¡Listo! Revisa tu correo en los próximos minutos.';
+      msg.style.color = 'var(--gold)';
+      msg.textContent = '¡Listo! Revisa tu correo en los próximos minutos.';
+      setTimeout(function(){ document.getElementById('subModal').classList.remove('open'); }, 2200);
     }catch(err){
-      msgEl.textContent = 'No se pudo enviar, intenta de nuevo.';
+      msg.style.color = '#b00';
+      msg.textContent = 'No se pudo enviar, intenta de nuevo.';
       console.error(err);
     }
-  }
-
-  document.getElementById('heroSubForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const email = document.getElementById('heroSubEmail').value;
-    submitSubscriber(email, 'gratis-30-dias', document.getElementById('heroSubMsg'), this);
-  });
-
-  document.getElementById('finalSubForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const email = document.getElementById('finalSubEmail').value;
-    submitSubscriber(email, 'gratis-30-dias', document.getElementById('finalSubMsg'), this);
-  });
+  };
 </script>
 
 </body>
