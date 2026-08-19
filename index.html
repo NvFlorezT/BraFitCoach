@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit · Newsletter</title>
+<title>BraFit · </title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -333,8 +333,9 @@
   .disclaimer{ margin-top:28px; font-size:13px; color:var(--ink-muted); font-style:italic; }
 
   /* ---------- LADDER / PRICING ---------- */
-  .ladder{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
-  @media (max-width:900px){ .ladder{ grid-template-columns:1fr; } }
+  .ladder{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; align-items:stretch; }
+  @media (max-width:1100px){ .ladder{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px){ .ladder{ grid-template-columns:1fr; } }
   .plan{ border:1px solid rgba(7,22,52,.15); padding:36px 28px; display:flex; flex-direction:column; background:#fff; position:relative; border-radius:16px; }
   .plan.featured{ background:var(--navy); color:var(--bone); border-color:var(--navy); transform:scale(1.035); }
   .plan.featured .plan-eyebrow{ color:var(--gold-soft); }
@@ -615,41 +616,59 @@
     <div class="ladder reveal">
       <div class="plan">
         <span class="plan-eyebrow">Nivel 1</span>
-        <h3>Prueba gratis</h3>
-        <div class="price">30 días</div>
+        <h3>Newsletter</h3>
+        <div class="price" style="font-size:26px;">Gratis 30 días</div>
+        <p style="font-family:'JetBrains Mono'; font-size:12px; color:var(--ink-muted); margin-top:-6px; margin-bottom:14px;">Luego USD 24/trimestre</p>
         <ul>
-          <li>Newsletter semanal completa</li>
-          <li>PDF descargable de la semana</li>
-          <li>Sin tarjeta, sin compromiso</li>
+          <li>3 ideas, 2 citas y 1 pregunta cada semana</li>
+          <li>PDF descargable sencillo cada semana</li>
+          <li>Sin tarjeta para probar los primeros 30 días</li>
         </ul>
         <button class="btn" style="background:transparent;border:1px solid var(--navy);color:var(--navy);" type="button" onclick="openSubModal('gratis-30-dias')">Empezar gratis</button>
       </div>
       <div class="plan featured">
-        <span class="ribbon">MÁS ELEGIDO</span>
+        <span class="ribbon">GANCHO</span>
         <span class="plan-eyebrow">Nivel 2</span>
         <h3>Fase 0 · Diagnóstico y Arranque</h3>
-        <div class="price" style="font-size:26px;">USD 197 <span style="font-size:14px; font-weight:400; opacity:.7;">· COP 299.000</span></div>
+        <div class="price" style="font-size:26px;">USD 90<span style="font-size:14px; font-weight:400; opacity:.7;">/trimestre</span></div>
         <ul>
           <li>Videollamada de evaluación inicial (45-60 min)</li>
           <li>Medición inicial con fotos — tu punto de partida real</li>
           <li>Plan de entrenamiento de 2 semanas en Harbiz</li>
-          <li>Revisión de técnica por video</li>
           <li>Guía del Programa completa en PDF</li>
-          <li>Camiseta BTP95 de regalo</li>
-          <li style="color:var(--gold-soft);">Crédito completo aplicado a BTP95 si te inscribes en 15 días</li>
+          <li style="color:var(--gold-soft);">Crédito de USD 90 aplicado a BTP95 si te inscribes en 15 días</li>
         </ul>
         <button class="btn" type="button" onclick="openSubModal('fase0')">Empezar mi Fase 0</button>
       </div>
       <div class="plan secondary">
         <span class="plan-eyebrow">Nivel 3</span>
         <h3>Back to Peak 95</h3>
-        <div class="price">A tu medida</div>
+        <div class="price" style="font-size:26px;">USD 600<span style="font-size:14px; font-weight:400; opacity:.7;">/trimestre</span></div>
         <ul>
-          <li>Acompañamiento 1:1 completo</li>
-          <li>El método entero, conmigo</li>
-          <li>Para quien ya sabe que quiere ir en serio</li>
+          <li>Harbiz con seguimiento por IA</li>
+          <li>Llamada semanal programable</li>
+          <li>Mediciones y anamnesis</li>
+          <li>Entrenamiento adaptado + alimentación depurada</li>
+          <li>Reuniones grupales mensuales y retos</li>
+          <li>WhatsApp lunes a jueves</li>
+          <li>Camiseta de regalo</li>
         </ul>
         <a class="btn" style="display:inline-flex; text-decoration:none;" href="https://wa.me/573136248283?text=Hola%20Brahyan%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20el%20m%C3%A9todo%20Back%20to%20Peak%2095" target="_blank" rel="noopener">Conocer el método</a>
+      </div>
+      <div class="plan secondary">
+        <span class="plan-eyebrow">Nivel 4</span>
+        <h3>Premium</h3>
+        <div class="price" style="font-size:26px;">USD 1.200<span style="font-size:14px; font-weight:400; opacity:.7;">/trimestre</span></div>
+        <ul>
+          <li>Entrenamiento en vivo conmigo, los días que entrenes</li>
+          <li>Plan de alimentación de un nutricionista real</li>
+          <li>Anamnesis mensual con análisis</li>
+          <li>Guía de hábitos + camiseta y manilla de regalo</li>
+          <li>Garantía de 15-20 días</li>
+          <li>WhatsApp personal lunes a sábado</li>
+          <li>Código de 20% de regalo para otra persona</li>
+        </ul>
+        <a class="btn" style="display:inline-flex; text-decoration:none;" href="https://wa.me/573136248283?text=Hola%20Brahyan%2C%20quiero%20conocer%20m%C3%A1s%20sobre%20el%20plan%20Premium" target="_blank" rel="noopener">Quiero acceso directo</a>
       </div>
     </div>
   </div>
@@ -995,21 +1014,21 @@
       title: 'Empieza tu prueba gratis',
       desc: '30 días sin costo, sin tarjeta. Completa tus datos y te escribimos por correo y WhatsApp.',
       button: 'Empezar gratis',
-      successMsg: '¡Listo! Revisa tu correo en los próximos minutos.'
+      successMsg: 'Tu inscripción ha sido exitosa. A tu correo ha llegado la confirmación — bienvenido a BraFit.'
     },
     'fase0': {
       label: 'Fase 0 · Diagnóstico y Arranque',
       title: 'Fase 0 · Diagnóstico y Arranque',
-      desc: 'USD 197 · COP 299.000, pago único. Incluye evaluación inicial, 2 semanas de entrenamiento y crédito completo hacia BTP95 si te inscribes en 15 días. Completa tus datos para confirmar.',
+      desc: 'USD 90 por trimestre. Incluye evaluación inicial, medición con fotos y 2 semanas de entrenamiento en Harbiz. Si te inscribes a BTP95 dentro de 15 días, USD 90 se descuentan de tu inscripción. Completa tus datos para confirmar.',
       button: 'Confirmar mi cupo',
-      successMsg: '¡Listo! Tu cupo quedó reservado. Revisa tu correo para el siguiente paso.'
+      successMsg: 'Tu inscripción ha sido exitosa. A tu correo ha llegado la confirmación junto con tu link de pago seguro.'
     },
     'btp95': {
       label: 'Back to Peak 95',
       title: 'Back to Peak 95',
       desc: 'Completa tus datos y te contactamos para contarte todos los detalles.',
       button: 'Quiero más información',
-      successMsg: 'Listo — a tu correo llegó la confirmación. Te escribimos pronto al WhatsApp +57 313 624 8283.'
+      successMsg: 'Tu inscripción ha sido exitosa. A tu correo ha llegado la confirmación. Te escribimos pronto al WhatsApp +57 313 624 8283.'
     }
   };
 
@@ -1076,12 +1095,11 @@
       await sendWelcomeEmail(email, pendingPdfLink, plan);
       msg.style.color = 'var(--gold)';
       if (pendingPdfLink) {
-        msg.textContent = '¡Listo! Revisa tu correo, ahí va el PDF de esta semana.';
+        msg.textContent = 'Tu inscripción ha sido exitosa. A tu correo ha llegado la confirmación junto con el PDF de esta semana.';
         pendingPdfLink = null;
       } else if (plan === 'fase0') {
-        msg.innerHTML = '¡Listo! Tu cupo quedó reservado. ' +
-          '<a href="' + PAYPAL_LINK_FASE0 + '" target="_blank" rel="noopener" style="color:var(--navy); text-decoration:underline; font-weight:700;">Paga aquí tu Fase 0 (USD 197)</a>' +
-          ' — o hazlo después desde el correo que te acabamos de enviar.';
+        msg.innerHTML = 'Tu inscripción ha sido exitosa. A tu correo ha llegado la confirmación junto con tu link de pago seguro. ' +
+          'También puedes pagar directo aquí: <a href="' + PAYPAL_LINK_FASE0 + '" target="_blank" rel="noopener" style="color:var(--navy); text-decoration:underline; font-weight:700;">Pagar mi Fase 0 (USD 90/trimestre)</a>.';
       } else {
         msg.textContent = (PLAN_INFO[plan] && PLAN_INFO[plan].successMsg) || '¡Listo! Revisa tu correo en los próximos minutos.';
       }
