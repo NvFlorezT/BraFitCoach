@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BraFit </title>
+<title>BraFit · Newsletter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -631,6 +631,7 @@
         <div class="price" style="font-size:26px;">USD 197 <span style="font-size:14px; font-weight:400; opacity:.7;">· COP 299.000</span></div>
         <ul>
           <li>Videollamada de evaluación inicial (45-60 min)</li>
+          <li>Medición inicial con fotos — tu punto de partida real</li>
           <li>Plan de entrenamiento de 2 semanas en Harbiz</li>
           <li>Revisión de técnica por video</li>
           <li>Guía del Programa completa en PDF</li>
@@ -963,18 +964,22 @@
   const EMAILJS_PUBLIC_KEY  = "noijpzFODF2qp2x2J";
   const EMAILJS_SERVICE_ID  = "coachbrahyan.cor09@gmail";
   const EMAILJS_TEMPLATE_ID = "template_p3n3ssg";
+  const EMAILJS_TEMPLATE_ID_FASE0 = "template_nnwrv2n";
+  const PAYPAL_LINK_FASE0 = "https://www.paypal.com/ncp/payment/NSTCUM7TWZHTJ";
 
   if (window.emailjs && EMAILJS_PUBLIC_KEY !== "PON_AQUI_TU_PUBLIC_KEY") {
     emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   }
 
-  async function sendWelcomeEmail(email, pdfLink){
+  async function sendWelcomeEmail(email, pdfLink, plan){
     if (!window.emailjs || EMAILJS_PUBLIC_KEY === "PON_AQUI_TU_PUBLIC_KEY") {
       console.warn("EmailJS no está configurado todavía. El correo se guardó, pero no se envió ningún email.");
       return;
     }
+    const isFase0 = (plan === 'fase0') && EMAILJS_TEMPLATE_ID_FASE0 !== "PON_AQUI_TU_TEMPLATE_ID_FASE0";
+    const templateId = isFase0 ? EMAILJS_TEMPLATE_ID_FASE0 : EMAILJS_TEMPLATE_ID;
     try{
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      await emailjs.send(EMAILJS_SERVICE_ID, templateId, {
         email: email,
         pdf_link: pdfLink || 'https://nvflorezt.github.io/BraFitCoach/'
       });
@@ -997,7 +1002,7 @@
       title: 'Fase 0 · Diagnóstico y Arranque',
       desc: 'USD 197 · COP 299.000, pago único. Incluye evaluación inicial, 2 semanas de entrenamiento y crédito completo hacia BTP95 si te inscribes en 15 días. Completa tus datos para confirmar.',
       button: 'Confirmar mi cupo',
-      successMsg: 'Listo — a tu correo llegó la confirmación y el link de pago seguro. Para más información escríbenos al WhatsApp +57 313 624 8283.'
+      successMsg: '¡Listo! Tu cupo quedó reservado. Revisa tu correo para el siguiente paso.'
     },
     'btp95': {
       label: 'Back to Peak 95',
@@ -1046,7 +1051,7 @@
         // Solo actualizamos nombre y whatsapp por si cambiaron -- nunca el plan ni la fecha de inicio
         await setDoc(subRef, { name: name, whatsapp: whatsapp }, { merge: true });
         if (pendingPdfLink) {
-          await sendWelcomeEmail(email, pendingPdfLink);
+          await sendWelcomeEmail(email, pendingPdfLink, currentPlan);
           msg.style.color = 'var(--gold)';
           msg.textContent = '¡Listo! Revisa tu correo, ahí va el PDF de esta semana.';
           pendingPdfLink = null;
@@ -1068,15 +1073,19 @@
         plan: plan,
         createdAt: serverTimestamp()
       });
-      await sendWelcomeEmail(email, pendingPdfLink);
+      await sendWelcomeEmail(email, pendingPdfLink, plan);
       msg.style.color = 'var(--gold)';
       if (pendingPdfLink) {
         msg.textContent = '¡Listo! Revisa tu correo, ahí va el PDF de esta semana.';
         pendingPdfLink = null;
+      } else if (plan === 'fase0') {
+        msg.innerHTML = '¡Listo! Tu cupo quedó reservado. ' +
+          '<a href="' + PAYPAL_LINK_FASE0 + '" target="_blank" rel="noopener" style="color:var(--navy); text-decoration:underline; font-weight:700;">Paga aquí tu Fase 0 (USD 197)</a>' +
+          ' — o hazlo después desde el correo que te acabamos de enviar.';
       } else {
         msg.textContent = (PLAN_INFO[plan] && PLAN_INFO[plan].successMsg) || '¡Listo! Revisa tu correo en los próximos minutos.';
       }
-      setTimeout(function(){ document.getElementById('subModal').classList.remove('open'); }, 2200);
+      setTimeout(function(){ document.getElementById('subModal').classList.remove('open'); }, 4000);
     }catch(err){
       msg.style.color = '#b00';
       msg.textContent = 'No se pudo enviar, intenta de nuevo.';
